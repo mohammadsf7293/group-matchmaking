@@ -13,11 +13,8 @@ namespace Rovio.MatchMaking.Repositories.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
             base.OnModelCreating(modelBuilder);
-
-            modelBuilder.ApplyConfiguration(new SessionConfiguration());
-            modelBuilder.ApplyConfiguration(new SessionPlayerConfiguration());
-            modelBuilder.ApplyConfiguration(new QueuedPlayerConfiguration());
         }
     }
 }
