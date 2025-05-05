@@ -22,6 +22,7 @@ namespace Rovio.MatchMaking.Repositories.Data.Configurations
 
             entity.Property(e => e.EndsAt)
                   .IsRequired();
+            entity.HasKey(e => e.Id); //Primary key
         }
     }
 }

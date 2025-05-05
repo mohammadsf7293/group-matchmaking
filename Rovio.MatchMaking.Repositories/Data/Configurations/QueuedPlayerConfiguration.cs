@@ -11,6 +11,7 @@ namespace Rovio.MatchMaking.Repositories.Data.Configurations
                 .HasColumnType("char(36)");
             entity.Property(e => e.PlayerId)
                 .HasColumnType("char(36)");
+            entity.HasKey(e => e.Id); //Primary key 
         }
     }
 }
