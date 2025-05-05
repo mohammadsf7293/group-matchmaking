@@ -17,14 +17,7 @@ namespace Rovio.MatchMaking.Repositories.Data
 
             modelBuilder.ApplyConfiguration(new SessionConfiguration());
             modelBuilder.ApplyConfiguration(new SessionPlayerConfiguration());
-
-            modelBuilder.Entity<QueuedPlayer>()
-                .Property(e => e.Id)
-                .HasColumnType("char(36)");
-
-            modelBuilder.Entity<QueuedPlayer>()
-                .Property(e => e.PlayerId)
-                .HasColumnType("char(36)");
+            modelBuilder.ApplyConfiguration(new QueuedPlayerConfiguration());
         }
     }
 }
