@@ -11,13 +11,19 @@ services:
           MYSQL_DATABASE: ${MYSQL_DATABASE}
           MYSQL_USER: ${MYSQL_USER}
           MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   webapp:
     build:
         context: .
         dockerfile: Rovio.MatchMaking.Net/Dockerfile
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     ports:
       - "8080:80"
     env_file:
@@ -31,7 +37,8 @@ services:
       dockerfile: Rovio.MatchMaking.Console/Dockerfile
 
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     environment:
       - ConnectionStrings__DefaultConnection=${DB_CONN}
     command: ["sh", "-c", "while true; do dotnet Worker.dll; sleep 60; done"]
