@@ -1,0 +1,40 @@
+services:
+  mysql:
+    image: mysql:8
+    container_name: my-mysql
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+          MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+          MYSQL_DATABASE: ${MYSQL_DATABASE}
+          MYSQL_USER: ${MYSQL_USER}
+          MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+  webapp:
+    build:
+        context: .
+        dockerfile: Rovio.MatchMaking.Net/Dockerfile
+    depends_on:
+      - mysql
+    ports:
+      - "8080:80"
+    env_file:
+      - ./.env
+    environment:
+      - ConnectionStrings__DefaultConnection=${DB_CONN}
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+  worker:
+    build:
+      context: .
+      dockerfile: Rovio.MatchMaking.Console/Dockerfile
+
+    depends_on:
+      - mysql
+    environment:
+      - ConnectionStrings__DefaultConnection=${DB_CONN}
+    command: ["sh", "-c", "while true; do dotnet Worker.dll; sleep 60; done"]
+
+volumes:
+  mysql-data:
