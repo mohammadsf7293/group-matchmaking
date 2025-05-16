@@ -41,6 +41,34 @@ if (app.Environment.IsDevelopment())
     logger.LogInformation("Started in development mode");
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    
+    const int maxRetries = 10;
+    int retries = 0;
+    while (true)
+    {
+        try
+        {
+            db.Database.Migrate();
+            break;
+        }
+        catch (Exception ex)
+        {
+            retries++;
+            logger.LogWarning(ex, "Migration failed. Retrying in 5 seconds... Attempt {Retry}/{MaxRetries}", retries, maxRetries);
+
+            if (retries >= maxRetries)
+            {
+                logger.LogError("Max retries reached. Exiting.");
+                throw;
+            }
+
+            Thread.Sleep(5000); // Wait 5 seconds
+        }
+    }
+}
 
 
 app.MapControllers();
