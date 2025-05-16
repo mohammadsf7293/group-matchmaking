@@ -134,6 +134,23 @@ Latency is categorized as follows:
 - Start the `Rovio.MatchMaking.Net` module by executing the `dotnet run` command at the root of the project. 
 - Once running, you can access the `Swagger Panel` and use the `queue` API multiple times to queue different users with varying latencies.
 
+## 🐳 Running the Project with Docker
+
+An alternative way to run the project is using Docker and Docker Compose. Follow these steps:
+
+1. **Copy the example environment file:**
+   ```bash
+   cp .env.example .env
+   ```
+2. **Start the application with Docker Compose:**
+  ```bash
+  docker-compose up --build
+  ```
+  
+This setup will automatically build and start all required services, including the application and its dependencies (like the database). Make sure Docker and Docker Compose are installed on your system.
+
+Note: The application will automatically apply database migrations on startup, with a retry mechanism in case the database isn't immediately available.
+
 ### 5. Running the Matchmaking Worker
 - To match users, navigate to the `Rovio.MatchMaking.Console` project and run the following command:
 
