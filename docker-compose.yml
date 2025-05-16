@@ -41,7 +41,8 @@ services:
         condition: service_healthy
     environment:
       - ConnectionStrings__DefaultConnection=${DB_CONN}
-    command: ["sh", "-c", "while true; do dotnet Worker.dll; sleep 60; done"]
+    entrypoint: [ "sh", "-c" ]
+    command: [ "while true; do dotnet Worker.dll; sleep 60; done" ]
 
 volumes:
   mysql-data:
