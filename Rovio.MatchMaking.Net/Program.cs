@@ -51,7 +51,16 @@ using (var scope = app.Services.CreateScope())
     {
         try
         {
-            db.Database.Migrate();
+            var pending = db.Database.GetPendingMigrations();
+            if (pending.Any())
+            {
+                logger.LogInformation("Applying pending migrations...");
+                db.Database.Migrate();
+            }
+            else
+            {
+                logger.LogInformation("No pending migrations.");
+            }
             break;
         }
         catch (Exception ex)
@@ -65,7 +74,7 @@ using (var scope = app.Services.CreateScope())
                 throw;
             }
 
-            Thread.Sleep(5000); // Wait 5 seconds
+            Thread.Sleep(5000);
         }
     }
 }
