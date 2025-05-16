@@ -18,7 +18,7 @@ namespace Rovio.MatchMaking.Console
             // Build configuration
             IConfigurationRoot configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.json").AddEnvironmentVariables()
                 .Build();
 
             // Create a Host to manage dependency injection and configuration
@@ -48,7 +48,7 @@ namespace Rovio.MatchMaking.Console
                 .ConfigureServices((context, services) =>
                 {
                     // Configure DbContext with connection string
-                    var connectionString = configuration.GetConnectionString("DefaultConnection");
+                    var connectionString =  configuration.GetConnectionString("DefaultConnection");
                     services.AddDbContext<AppDbContext>(options =>
                         options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 21))));
 
