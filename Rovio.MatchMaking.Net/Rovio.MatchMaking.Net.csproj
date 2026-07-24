@@ -8,11 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Autofac" Version="8.1.0" />
-        <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8">
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
           <PrivateAssets>all</PrivateAssets>
@@ -23,6 +20,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Rovio.MatchMaking\Rovio.MatchMaking.csproj" />
+      <ProjectReference Include="..\Rovio.MatchMaking.Application\Rovio.MatchMaking.Application.csproj" />
       <ProjectReference Include="..\Rovio.MatchMaking.Repositories\Rovio.MatchMaking.Repositories.csproj" />
     </ItemGroup>
 

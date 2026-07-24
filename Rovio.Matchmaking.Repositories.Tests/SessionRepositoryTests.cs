@@ -164,5 +164,21 @@ namespace Rovio.MatchMaking.Tests
             Assert.Equal("LEFT", fetchedSessionPlayer.Status);
             Assert.Equal(insertedSession.Entity.Id, fetchedSessionPlayer.SessionId);
         }
+
+        [Fact]
+        public async Task IsPlayerInActiveSessionAsync_ShouldDetectActiveMembership()
+        {
+            ProvideCleanDatabase();
+
+            var playerId = Guid.NewGuid();
+            var session = await _repository.CreateNewAsync(1, 0, 30);
+            await _repository.AddPlayerToSessionAsync(session.Id, playerId);
+
+            var inSession = await _repository.IsPlayerInActiveSessionAsync(playerId);
+            var otherPlayer = await _repository.IsPlayerInActiveSessionAsync(Guid.NewGuid());
+
+            Assert.True(inSession);
+            Assert.False(otherPlayer);
+        }
     }
 }

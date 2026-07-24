@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Rovio.MatchMaking.Repositories;
 using Rovio.MatchMaking.Repositories.Data;
 using Xunit;
 
@@ -53,16 +54,31 @@ namespace Rovio.MatchMaking.Tests
             // Arrange
             var playerId = Guid.NewGuid();
             var queuedPlayer = new QueuedPlayer { PlayerId = playerId, LatencyLevel = 1, CreatedAt = DateTime.UtcNow };
-            await _context.QueuedPlayers.AddAsync(queuedPlayer);
-            await _context.SaveChangesAsync();
+            var inserted = await _repository.CreateQueuedPlayerAsync(queuedPlayer);
 
             // Act
-            await _repository.DeleteQueuedPlayerAsync(playerId);
-            await _context.SaveChangesAsync();
-            var result = await _context.QueuedPlayers.FindAsync(playerId);
+            await _repository.DeleteQueuedPlayerAsync(inserted.Id);
+            var result = await _context.QueuedPlayers.FindAsync(inserted.Id);
 
             // Assert
             Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetAllQueuedPlayersAsync_ShouldReturnFifoOrder()
+        {
+            ProvideCleanDatabase();
+
+            var older = new QueuedPlayer { PlayerId = Guid.NewGuid(), LatencyLevel = 1, CreatedAt = DateTime.UtcNow.AddMinutes(-5) };
+            var newer = new QueuedPlayer { PlayerId = Guid.NewGuid(), LatencyLevel = 1, CreatedAt = DateTime.UtcNow };
+            await _context.QueuedPlayers.AddRangeAsync(newer, older);
+            await _context.SaveChangesAsync();
+
+            var result = (await _repository.GetAllQueuedPlayersAsync()).ToList();
+
+            Assert.Equal(2, result.Count);
+            Assert.Equal(older.PlayerId, result[0].PlayerId);
+            Assert.Equal(newer.PlayerId, result[1].PlayerId);
         }
 
         [Fact]

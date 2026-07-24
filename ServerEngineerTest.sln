@@ -1,5 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rovio.MatchMaking", "Rovio.MatchMaking\Rovio.MatchMaking.csproj", "{867764AC-A86C-4071-A0A7-DBE3A838C3D7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rovio.MatchMaking.Net", "Rovio.MatchMaking.Net\Rovio.MatchMaking.Net.csproj", "{7B577BFF-124C-4661-9804-BD5E595FE808}"
@@ -11,6 +12,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rovio.Matchmaking.Repositories.Tests", "Rovio.Matchmaking.Repositories.Tests\Rovio.Matchmaking.Repositories.Tests.csproj", "{79E3CBF4-DB48-42D6-8470-A1D1A32FD6ED}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rovio.MatchMaking.Net.Tests", "Rovio.MatchMaking.Net.Tests\Rovio.MatchMaking.Net.Tests.csproj", "{32AC942D-2E1D-4024-A7DD-68872E8F8042}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rovio.MatchMaking.Application", "Rovio.MatchMaking.Application\Rovio.MatchMaking.Application.csproj", "{7241A5B8-5D53-4013-80C1-C92CBE067EA8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rovio.MatchMaking.Console", "Rovio.MatchMaking.Console\Rovio.MatchMaking.Console.csproj", "{33685D20-DEC8-4722-89AB-A7BF09D93785}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rovio.MatchMaking.Console.Tests", "Rovio.MatchMaking.Console.Tests\Rovio.MatchMaking.Console.Tests.csproj", "{9606E432-60CA-4259-B4B2-ABDD3ED24AA2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,5 +49,17 @@ Global
 		{32AC942D-2E1D-4024-A7DD-68872E8F8042}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32AC942D-2E1D-4024-A7DD-68872E8F8042}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32AC942D-2E1D-4024-A7DD-68872E8F8042}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7241A5B8-5D53-4013-80C1-C92CBE067EA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7241A5B8-5D53-4013-80C1-C92CBE067EA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7241A5B8-5D53-4013-80C1-C92CBE067EA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7241A5B8-5D53-4013-80C1-C92CBE067EA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33685D20-DEC8-4722-89AB-A7BF09D93785}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33685D20-DEC8-4722-89AB-A7BF09D93785}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33685D20-DEC8-4722-89AB-A7BF09D93785}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33685D20-DEC8-4722-89AB-A7BF09D93785}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9606E432-60CA-4259-B4B2-ABDD3ED24AA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9606E432-60CA-4259-B4B2-ABDD3ED24AA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9606E432-60CA-4259-B4B2-ABDD3ED24AA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9606E432-60CA-4259-B4B2-ABDD3ED24AA2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

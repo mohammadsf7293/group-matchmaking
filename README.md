@@ -101,19 +101,28 @@ Latency is categorized as follows:
 ## Initial Setup
 
 ### 1. Database Configuration
-- Ensure that your database connections are configured correctly:
-  1. Install a fresh MySQL database and obtain its credentials. You can use a Dockerized version of MySQL.
-  2. Update the database configurations in the following files:
-     - `Rovio.MatchMaking.Repositories/appsettings.json`
-     - `Rovio.MatchMaking.Repositories/appsettings.Development.json`
-     - `Rovio.MatchMaking.Net/appsettings.json`
-     - `Rovio.MatchMaking.Net/appsettings.Development.json`
-
-### 2. Installing Infrastructure
-- Navigate to the `Rovio.MatchMaking.Repositories` directory and run the following command to set up the infrastructure:
+- Prefer environment variables over committed secrets:
+  - `ConnectionStrings__DefaultConnection=Server=localhost;Port=3306;Database=MatchMakingDb;User=root;Password=YOUR_PASSWORD;`
+- Copy `.env.example` when using Docker Compose.
+- Placeholder connection strings in `appsettings*.json` use `Password=CHANGEME;` — override via env or user-secrets for local runs:
 
     ```bash
-    dotnet ef database update --context AppDbContext
+    cd Rovio.MatchMaking.Net
+    dotnet user-secrets init
+    dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost;Port=3306;Database=MatchMakingDb;User=root;Password=YOUR_PASSWORD;"
+    ```
+
+### 2. Installing Infrastructure
+- Start MySQL (Docker Compose recommended):
+
+    ```bash
+    docker compose up -d mysql
+    ```
+
+- Navigate to the `Rovio.MatchMaking.Repositories` directory and run:
+
+    ```bash
+    dotnet ef database update --context AppDbContext --startup-project ../Rovio.MatchMaking.Net
     ```
 
 ### 3. Installing Dependencies
@@ -124,24 +133,28 @@ Latency is categorized as follows:
     ```
 
 ### 4. Running the Project
-- Build and run the project using the following commands:
+- Run the API:
 
     ```bash
-    dotnet build
-    dotnet run
+    dotnet run --project Rovio.MatchMaking.Net
     ```
 
-- Start the `Rovio.MatchMaking.Net` module by executing the `dotnet run` command at the root of the project. 
-- Once running, you can access the `Swagger Panel` and use the `queue` API multiple times to queue different users with varying latencies.
+- Swagger is available in Development (see `launchSettings.json` for the local URL, typically `http://localhost:5156/swagger`).
 
 ### 5. Running the Matchmaking Worker
-- To match users, navigate to the `Rovio.MatchMaking.Console` project and run the following command:
+- Run the worker once (cron-style):
 
     ```bash
-    dotnet run
+    dotnet run --project Rovio.MatchMaking.Console
     ```
 
-- This will initiate the matchmaking worker and execute the matchmaking operations. After execution, verify the following in the database:
+- Or via Compose profile:
+
+    ```bash
+    docker compose --profile worker run --rm worker
+    ```
+
+- After execution, verify the following in the database:
   - Players queued for matching should be removed from the `QueuedPlayers` table.
   - New sessions should be created in the `Sessions` table.
   - The `SessionPlayers` table should reflect the players assigned to sessions based on their latencies.
@@ -149,6 +162,9 @@ Latency is categorized as follows:
 ### 6. Client Notification and Session Joining
 - After matching, clients (users) will be notified of their session assignment via FCM or WebSocket, receiving their `session_id`.
 - They can then call the `match/join` API to obtain session data and view their teammates (competitors list).
+
+### 7. CI
+- GitHub Actions builds and tests the solution on push/PR (`.github/workflows/ci.yml`).
 
 # How to deploy on production and how to scale
 ## Production Deployment Strategy
@@ -177,9 +193,12 @@ By following this strategy, the system can handle high loads efficiently, ensure
 
 # Tests
 Tests are developed for the following modules:
+- `Rovio.MatchMaking` (domain)
 - `Rovio.MatchMaking.Net`
-- `Rovio.MatchMaking.Console`
-To run the tests, you can simply run the following cmd from root of the project:
+- `Rovio.MatchMaking.Console` / Application matchmaker
+- `Rovio.MatchMaking.Repositories`
+
+To run the tests from the repository root:
 ```
 dotnet test
 ```

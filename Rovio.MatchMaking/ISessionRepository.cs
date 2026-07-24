@@ -8,4 +8,5 @@ public interface ISessionRepository
     Task<IEnumerable<SessionPlayer>> GetSessionPlayersBySessionId(Guid sessionId);
     Task<SessionPlayer> AddPlayerToSessionAsync(Guid sessionId, Guid playerId);
     Task<SessionPlayer> RemovePlayerFromSessionAsync(Guid sessionId, Guid playerId);
+    Task<bool> IsPlayerInActiveSessionAsync(Guid playerId);
 }

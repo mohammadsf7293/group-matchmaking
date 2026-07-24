@@ -1,0 +1,21 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+*.DotSettings.user
+
+## Secrets / local config
+.env
+.env.*
+!.env.example
+appsettings.*.local.json
+**/secrets.json
+
+## OS / IDE
+.DS_Store
+.idea/
+*.swp

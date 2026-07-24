@@ -1,28 +1,28 @@
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Rovio.MatchMaking;
-using Rovio.MatchMaking.Net;
+using Rovio.MatchMaking.Application;
 using Rovio.MatchMaking.Repositories;
 using Rovio.MatchMaking.Repositories.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register the DbContext with DI
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-    new MySqlServerVersion(new Version(8, 0, 21))));
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException(
+        "Connection string 'DefaultConnection' is missing. Set ConnectionStrings__DefaultConnection.");
 
-builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory())
-    .ConfigureContainer<ContainerBuilder>(b => { b.RegisterModule<MatchMakingModule>(); });
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 21))));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 builder.Services.AddControllers();
-builder.Services.AddSingleton<ISessionRepository, SessionRepository>();
-builder.Services.AddScoped<IQueuedPlayerRepository, QueuedPlayerRepository>();
+builder.Services.AddProblemDetails();
 
+builder.Services.AddScoped<ISessionRepository, SessionRepository>();
+builder.Services.AddScoped<IQueuedPlayerRepository, QueuedPlayerRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<MatchMakingService>();
+builder.Services.AddScoped<SessionMatchMaker>();
 
 builder.Services.AddHttpContextAccessor();
 
@@ -35,4 +35,4 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
-app.Run("http://localhost:5003");
+app.Run();

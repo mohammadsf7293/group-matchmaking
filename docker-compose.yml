@@ -1,0 +1,45 @@
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-strong_password}
+      MYSQL_DATABASE: MatchMakingDb
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=mysql;Port=3306;Database=MatchMakingDb;User=root;Password=${MYSQL_ROOT_PASSWORD:-strong_password};"
+      ASPNETCORE_URLS: http://+:8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    environment:
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=mysql;Port=3306;Database=MatchMakingDb;User=root;Password=${MYSQL_ROOT_PASSWORD:-strong_password};"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    profiles:
+      - worker
+
+volumes:
+  mysql_data:

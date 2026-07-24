@@ -1,97 +1,58 @@
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
-using Rovio.MatchMaking;
+using Microsoft.Extensions.Logging;
+using Rovio.MatchMaking.Application;
+
 namespace Rovio.MatchMaking.Net;
 
+[ApiController]
 [Route("match")]
-public class MatchMakingController : Controller
+public class MatchMakingController : ControllerBase
 {
-    // Assuming there's already an injected service/repository to handle queuing
-    private readonly IQueuedPlayerRepository _queuedPlayerRepository;
-    private readonly ISessionRepository _sessionRepository;
-    private IQueuedPlayerRepository @object;
+    private readonly MatchMakingService _matchMakingService;
+    private readonly ILogger<MatchMakingController> _logger;
 
-    public MatchMakingController(IQueuedPlayerRepository queuedPlayerRepository, ISessionRepository sessionRepository)
+    public MatchMakingController(MatchMakingService matchMakingService, ILogger<MatchMakingController> logger)
     {
-        _queuedPlayerRepository = queuedPlayerRepository;
-        _sessionRepository = sessionRepository;
+        _matchMakingService = matchMakingService;
+        _logger = logger;
     }
 
     [HttpPost("queue")]
     public async Task<IActionResult> QueuePlayerAsync([FromBody] Player player)
     {
-        // throw new NotImplementedException();
-        if (player == null)
+        var result = await _matchMakingService.QueuePlayerAsync(player);
+        if (!result.Success)
         {
-            return BadRequest(new { error = "Player cannot be null" });
+            return BadRequest(new { error = result.Error });
         }
-
-        // Check if the player is already queued
-        var existingQueuedPlayer = await _queuedPlayerRepository.GetQueuedPlayerByPlayerIdAsync(player.Id);
-        if (existingQueuedPlayer != null)
-        {
-            return BadRequest(new { error = "Player is already queued" });
-        }
-
-        // Log Player properties to the console
-        Console.WriteLine($"Player Queued: ID = {player.Id}, Name = {player.Name}, Latency = {player.LatencyMilliseconds}");
-        
-        var queuedPlayer = QueuedPlayer.CreateQueuedPlayerFromPlayer(player);
-        var createdQueuedPlayer = await _queuedPlayerRepository.CreateQueuedPlayerAsync(queuedPlayer);
-        // Assuming the sessionFactory handles the logic for queuing a player
-        // await _sessionFactory.QueuePlayerAsync(player);
-        // await _sessionFactory.Create();
 
         return Ok(new { message = "Player queued successfully" });
     }
-    
+
     [HttpPost("dequeue")]
     public async Task<IActionResult> DequeuePlayerAsync([FromBody] Player player)
     {
-        if (player == null)
+        var result = await _matchMakingService.DequeuePlayerAsync(player);
+        if (!result.Success)
         {
-            return BadRequest(new { error = "Player cannot be null" });
+            return BadRequest(new { error = result.Error });
         }
-
-        // Check if the player is already queued
-        var queuedPlayer = await _queuedPlayerRepository.GetQueuedPlayerByPlayerIdAsync(player.Id);
-        if (queuedPlayer == null)
-        {
-            return BadRequest(new { error = "Player is not queued" });
-        }
-
-        await _queuedPlayerRepository.DeleteQueuedPlayerAsync(queuedPlayer.Id);
 
         return Ok(new { message = "Player dequeued successfully" });
     }
 
+    /// <summary>
+    /// Returns session details for a matched player (does not mutate membership).
+    /// </summary>
     [HttpPost("join")]
-    public async Task<IActionResult> JoinSession([FromBody] JoinSessionRequest requestBody)
+    public async Task<IActionResult> GetSession([FromBody] JoinSessionRequest requestBody)
     {
-        if (requestBody == null)
+        var result = await _matchMakingService.GetSessionForPlayerAsync(requestBody);
+        if (!result.Success)
         {
-            return BadRequest(new { error = "Request body cannot be null" });
+            return BadRequest(new { error = result.Error });
         }
 
-        var session = await _sessionRepository.GetSessionById(requestBody.SessionId);
-        if (session == null) {
-            return BadRequest(new { error = "Invalid Session" });
-        }
-
-        // if (session.StartsAt > DateTime.UtcNow) {
-        //     return BadRequest(new { error = "Session hasn't been started yet!" });
-        // }
-
-        var sessionPlayers = await _sessionRepository.GetSessionPlayersBySessionId(requestBody.SessionId);
-        List<Guid> playerIdsList = new List<Guid>();
-        foreach (var sp in sessionPlayers) {
-            playerIdsList.Add(sp.PlayerId);
-        }
-        if (!playerIdsList.Contains(requestBody.PlayerId)) {
-            return BadRequest(new { error = "You don't have permission to join this session" });
-        }
-
-        return Ok(new { session = session, sessionPlayers = sessionPlayers });
+        return Ok(result.Data);
     }
 }

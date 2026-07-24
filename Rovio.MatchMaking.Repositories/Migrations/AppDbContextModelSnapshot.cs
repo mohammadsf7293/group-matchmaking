@@ -22,7 +22,7 @@ namespace Rovio.MatchMaking.Repositories.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("QueuedPlayer", b =>
+            modelBuilder.Entity("Rovio.MatchMaking.QueuedPlayer", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -39,7 +39,17 @@ namespace Rovio.MatchMaking.Repositories.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("QueuedPlayers");
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("LatencyLevel");
+
+                    b.HasIndex("PlayerId")
+                        .IsUnique();
+
+                    b.ToTable("QueuedPlayers", t =>
+                        {
+                            t.HasCheckConstraint("CK_QueuedPlayers_LatencyLevel", "LatencyLevel >= 1 AND LatencyLevel <= 5");
+                        });
                 });
 
             modelBuilder.Entity("Rovio.MatchMaking.SessionPlayer", b =>
@@ -65,7 +75,8 @@ namespace Rovio.MatchMaking.Repositories.Migrations
                     b.Property<string>("Status")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("longtext")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
                         .HasDefaultValue("ATTENDED");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -73,7 +84,17 @@ namespace Rovio.MatchMaking.Repositories.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SessionPlayers");
+                    b.HasIndex("PlayerId");
+
+                    b.HasIndex("SessionId");
+
+                    b.HasIndex("SessionId", "PlayerId")
+                        .IsUnique();
+
+                    b.ToTable("SessionPlayers", t =>
+                        {
+                            t.HasCheckConstraint("CK_SessionPlayers_Status", "Status IN ('ATTENDED', 'PLAYED', 'LEFT')");
+                        });
                 });
 
             modelBuilder.Entity("Session", b =>
@@ -89,23 +110,42 @@ namespace Rovio.MatchMaking.Repositories.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<int>("JoinedCount")
+                        .IsConcurrencyToken()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasAnnotation("SqlServer:Check", "JoinedCount <= 10");
+                        .HasDefaultValue(0);
 
                     b.Property<int>("LatencyLevel")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(1)
-                        .HasAnnotation("SqlServer:Check", "LatencyLevel >= 1");
+                        .HasDefaultValue(1);
 
                     b.Property<DateTime>("StartsAt")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sessions");
+                    b.HasIndex("EndsAt");
+
+                    b.HasIndex("LatencyLevel");
+
+                    b.HasIndex("LatencyLevel", "EndsAt", "JoinedCount");
+
+                    b.ToTable("Sessions", t =>
+                        {
+                            t.HasCheckConstraint("CK_Sessions_JoinedCount", "JoinedCount >= 0 AND JoinedCount <= 10");
+
+                            t.HasCheckConstraint("CK_Sessions_LatencyLevel", "LatencyLevel >= 1 AND LatencyLevel <= 5");
+                        });
+                });
+
+            modelBuilder.Entity("Rovio.MatchMaking.SessionPlayer", b =>
+                {
+                    b.HasOne("Session", null)
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

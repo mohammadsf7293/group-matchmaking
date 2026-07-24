@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Rovio.MatchMaking;
 using Rovio.MatchMaking.Repositories.Data;
 
+namespace Rovio.MatchMaking.Repositories;
+
 public class QueuedPlayerRepository : IQueuedPlayerRepository
 {
     private readonly AppDbContext _context;
@@ -13,7 +15,9 @@ public class QueuedPlayerRepository : IQueuedPlayerRepository
 
     public async Task<IEnumerable<QueuedPlayer>> GetAllQueuedPlayersAsync()
     {
-        return await _context.QueuedPlayers.ToListAsync();
+        return await _context.QueuedPlayers
+            .OrderBy(qp => qp.CreatedAt)
+            .ToListAsync();
     }
 
     public async Task<QueuedPlayer> GetQueuedPlayerByIdAsync(Guid id)
@@ -28,7 +32,7 @@ public class QueuedPlayerRepository : IQueuedPlayerRepository
 
     public async Task<QueuedPlayer> CreateQueuedPlayerAsync(QueuedPlayer queuedPlayer)
     {
-        queuedPlayer.Id = Guid.NewGuid(); // Assign a new unique ID
+        queuedPlayer.Id = Guid.NewGuid();
         _context.QueuedPlayers.Add(queuedPlayer);
         await _context.SaveChangesAsync();
         return queuedPlayer;
